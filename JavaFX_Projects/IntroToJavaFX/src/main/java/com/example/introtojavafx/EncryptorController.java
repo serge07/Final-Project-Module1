@@ -18,14 +18,15 @@ public class EncryptorController implements Initializable {
     @FXML
     private Button chooseFileButton;
 
-    @FXML
-    private AnchorPane clearButton;
 
     @FXML
-    private RadioButton decryption;
+    private AnchorPane myAnchorPane;
 
     @FXML
-    private RadioButton encryption;
+    private RadioButton onAES;
+
+    @FXML
+    private RadioButton onCaesar;
 
     @FXML
     private Label errorMessage;
@@ -43,7 +44,7 @@ public class EncryptorController implements Initializable {
     private ToggleGroup radioGroup;
 
     @FXML
-    private TextArea inpuTextArea;
+    private TextArea inputTextArea;
 
     @FXML
     private TextArea outputTextArea;
@@ -53,6 +54,9 @@ public class EncryptorController implements Initializable {
 
     @FXML
     private Button DecryptButton;
+
+    @FXML
+    private Button clearPlainText;
 
     FileChooser fileChooser=new FileChooser();
 
@@ -70,39 +74,57 @@ public class EncryptorController implements Initializable {
 
     @FXML
     void onClear(ActionEvent event) {
-       passwordInput.setText("");
+
+        passwordInput.setText("");
+    }
+
+    @FXML
+    void onClearPlainText(ActionEvent event) {
+       inputTextArea.setText("");
     }
 
     @FXML
     void onEncrypt(ActionEvent event) throws Exception {
-        if(radioGroup.getSelectedToggle().equals(encryption)) {
+        if(radioGroup.getSelectedToggle().equals(onAES)) {
             outputTextArea.setText("");
-            String plainTextData = inpuTextArea.getText();
-            String encryptedData = Encryptor.encrypt(plainTextData);
+            String plainTextData = inputTextArea.getText();
+            String encryptedData = EncryptorAES.encrypt(plainTextData);
             outputTextArea.setText(encryptedData);
         }else {
-            Alert alert=new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Operation Error");
-            alert.setContentText("Make sure the Encryption is selected!!!");
-            alert.showAndWait();
+
+            // Alert alert=new Alert(Alert.AlertType.ERROR);
+            //alert.setTitle("Operation Error");
+            //alert.setContentText("Make sure the Encryption is selected!!!");
+            //alert.showAndWait();
+
+            outputTextArea.setText("");
+            String plainTextData = inputTextArea.getText();
+            String encryptedData = EncryptorCaesar.encrypt(plainTextData,3);
+            outputTextArea.setText(encryptedData);
         }
 
     }
 
     @FXML
     void onDecrypt(ActionEvent event) throws Exception{
-      if (radioGroup.getSelectedToggle().equals(decryption)) {
-          String cipheredTextData = inpuTextArea.getText();
-          String decryptedData = Encryptor.decrypt(cipheredTextData);
-          inpuTextArea.setText(decryptedData);
+      if ((radioGroup.getSelectedToggle().equals(onAES)) &&(inputTextArea.getText().isEmpty())){
+          String cipheredTextData = outputTextArea.getText();
+          String decryptedData = EncryptorAES.decrypt(cipheredTextData);
+          inputTextArea.setText(decryptedData);
 
-      }else {
+      }else if ((radioGroup.getSelectedToggle().equals(onCaesar)) &&(inputTextArea.getText().isEmpty())){
+          String cipheredTextData = outputTextArea.getText();
+          String decryptedData = EncryptorCaesar.decrypt(cipheredTextData,3);
+          inputTextArea.setText(decryptedData);
+      }else{
           Alert alert=new Alert(Alert.AlertType.ERROR);
           alert.setTitle("Operation Error");
-          alert.setContentText("Make sure the Decryption is selected!!!");
+          alert.setContentText("Please clear first the plain text data!!!");
           alert.showAndWait();
       }
     }
+
+
 
     public void getFile() throws FileNotFoundException {
         //set the title
@@ -118,7 +140,7 @@ public class EncryptorController implements Initializable {
              try{
                  Scanner loader=new Scanner(file);
                  while (loader.hasNextLine()){
-                     inpuTextArea.appendText(loader.nextLine() + "\n");
+                     inputTextArea.appendText(loader.nextLine() + "\n");
                  }
              }catch(FileNotFoundException e){
                  e.printStackTrace();
