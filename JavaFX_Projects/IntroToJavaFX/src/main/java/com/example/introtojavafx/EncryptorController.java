@@ -2,10 +2,14 @@ package com.example.introtojavafx;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,8 +20,13 @@ import java.util.Scanner;
 public class EncryptorController implements Initializable {
 
     @FXML
-    private Button chooseFileButton;
+    private MenuItem closeMenuItem;
 
+    @FXML
+    private MenuItem aboutMenuItem;
+
+    @FXML
+    private Button chooseFileButton;
 
     @FXML
     private AnchorPane myAnchorPane;
@@ -28,17 +37,9 @@ public class EncryptorController implements Initializable {
     @FXML
     private RadioButton onCaesar;
 
-    @FXML
-    private Label errorMessage;
 
     @FXML
     private Label fileSelected;
-
-    @FXML
-    private PasswordField passwordInput;
-
-    @FXML
-    private Label passwordLength;
 
     @FXML
     private ToggleGroup radioGroup;
@@ -58,6 +59,27 @@ public class EncryptorController implements Initializable {
     @FXML
     private Button clearPlainText;
 
+
+    @FXML
+    void onCloseMenuItem(ActionEvent event) {
+       System.exit(0);// close the application
+    }
+
+    @FXML
+    void onAboutMenuItem(ActionEvent event) throws Exception {
+        // load About window from the fxml resource
+        FXMLLoader fxmlLoader = new FXMLLoader(EncryptorApplication.class.getResource("About-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+        Stage stage=new Stage(); //Stage object for the new window
+        stage.setTitle("About");
+        stage.setScene(scene);
+        stage.initModality(Modality.APPLICATION_MODAL);// Modality to prevent interaction with the parent  window whilst About window is open
+        stage.show();
+
+
+    }
+
+
     FileChooser fileChooser=new FileChooser();
 
 
@@ -72,30 +94,21 @@ public class EncryptorController implements Initializable {
 
     }
 
-    @FXML
-    void onClear(ActionEvent event) {
-
-        passwordInput.setText("");
-    }
 
     @FXML
     void onClearPlainText(ActionEvent event) {
-       inputTextArea.setText("");
+
+        inputTextArea.setText("");
     }
 
     @FXML
     void onEncrypt(ActionEvent event) throws Exception {
-        if(radioGroup.getSelectedToggle().equals(onAES)) {
+        if(radioGroup.getSelectedToggle().equals(onAES)){
             outputTextArea.setText("");
             String plainTextData = inputTextArea.getText();
             String encryptedData = EncryptorAES.encrypt(plainTextData);
             outputTextArea.setText(encryptedData);
         }else {
-
-            // Alert alert=new Alert(Alert.AlertType.ERROR);
-            //alert.setTitle("Operation Error");
-            //alert.setContentText("Make sure the Encryption is selected!!!");
-            //alert.showAndWait();
 
             outputTextArea.setText("");
             String plainTextData = inputTextArea.getText();
@@ -108,6 +121,7 @@ public class EncryptorController implements Initializable {
     @FXML
     void onDecrypt(ActionEvent event) throws Exception{
       if ((radioGroup.getSelectedToggle().equals(onAES)) &&(inputTextArea.getText().isEmpty())){
+
           String cipheredTextData = outputTextArea.getText();
           String decryptedData = EncryptorAES.decrypt(cipheredTextData);
           inputTextArea.setText(decryptedData);
@@ -149,5 +163,9 @@ public class EncryptorController implements Initializable {
             System.out.println(" the file invalid");
 
         }
+
+
     }
+
+
 }
